@@ -40,7 +40,7 @@ jobs:
             libxtst6 \
             libxrandr2 \
             libxss1\
-            gnome-screnshot
+            gnome-screenshot
 
       - name: Install Python dependencies
         run: |

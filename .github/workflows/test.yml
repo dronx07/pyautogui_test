@@ -50,6 +50,7 @@ jobs:
       - name: Start virtual display
         run: |
           echo "Starting Xvfb..."
+          export XAUTHORITY=/dev/null
           Xvfb :99 -screen 0 1920x1080x24 -ac &
 
           sleep 3

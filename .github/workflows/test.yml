@@ -1,4 +1,4 @@
-name: PyAutoGUI Test
+name: PyAutoGUI CI Test
 
 on:
   workflow_dispatch:
@@ -14,6 +14,7 @@ jobs:
     env:
       DISPLAY: :99
       PYTHONUNBUFFERED: "1"
+      XAUTHORITY: /dev/null
 
     steps:
       - name: Checkout repository
@@ -42,7 +43,7 @@ jobs:
             libxss1\
             gnome-screenshot
 
-      - name: Install Python dependencies
+      - name: Install Python packages
         run: |
           python -m pip install --upgrade pip
           pip install pyautogui pillow
@@ -50,27 +51,25 @@ jobs:
       - name: Start virtual display
         run: |
           echo "Starting Xvfb..."
-          export XAUTHORITY=/dev/null
           Xvfb :99 -screen 0 1920x1080x24 -ac &
-
           sleep 3
 
-          echo "Starting fluxbox window manager..."
+          echo "Starting Fluxbox window manager..."
           fluxbox &
-
-          sleep 3
+          sleep 2
 
           echo "Display info:"
           xdpyinfo -display :99
 
       - name: Run PyAutoGUI tests
         run: |
-          echo "Running tests..."
+          export DISPLAY=:99
+          echo "Running PyAutoGUI tests..."
           python test.py
 
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: pyautogui-screenshots
           path: |
@@ -82,7 +81,8 @@ jobs:
       - name: Debug info
         if: failure()
         run: |
-          echo "Debug info:"
+          echo "Debug information:"
           python --version
           echo "DISPLAY=$DISPLAY"
+          echo "XAUTHORITY=$XAUTHORITY"
           ps aux | grep -E "Xvfb|fluxbox" || true

@@ -65,7 +65,7 @@ jobs:
       - name: Run PyAutoGUI tests
         run: |
           echo "Running tests..."
-          python test_pyautogui.py
+          python test.py
 
       - name: Upload screenshots
         if: always()

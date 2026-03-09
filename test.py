@@ -8,6 +8,7 @@ import pyautogui
 import time
 import os
 import sys
+import webbrowser
 from datetime import datetime
 
 # CI-safe settings
@@ -88,8 +89,39 @@ def test_pyautogui_basic():
         print(f"❌ Keyboard input failed: {e}")
         return False
 
-    # Screenshot
-    save_screenshot("screenshot")
+    save_screenshot("basic_test")
+    return True
+
+
+def test_browser_open():
+    """Open a browser and capture screenshots"""
+    print("\n🌐 Opening browser with webbrowser module...")
+
+    url = "https://example.com"
+
+    try:
+        webbrowser.open(url)
+        print(f"✅ Browser opened with URL: {url}")
+    except Exception as e:
+        print(f"❌ Failed to open browser: {e}")
+        return False
+
+    # Wait for browser to load
+    print("⏳ Waiting for page to load...")
+    time.sleep(5)
+
+    # Capture screenshots
+    save_screenshot("browser_loaded")
+
+    # Scroll test
+    try:
+        pyautogui.scroll(-500)
+        time.sleep(1)
+        save_screenshot("browser_scrolled")
+        print("✅ Scroll test completed")
+    except Exception as e:
+        print(f"⚠️ Scroll failed: {e}")
+
     return True
 
 
@@ -104,13 +136,16 @@ def test_sequence_screenshots():
 
 if __name__ == "__main__":
     print("\n🚀 Starting PyAutoGUI CI test...\n")
+
     wait_for_display()
 
     basic_result = test_pyautogui_basic()
+    browser_result = test_browser_open()
     sequence_result = test_sequence_screenshots()
 
     print("\n" + "=" * 50)
-    if basic_result and sequence_result:
+
+    if basic_result and browser_result and sequence_result:
         print("✅ ALL TESTS PASSED — PyAutoGUI works in GitHub Actions!")
         sys.exit(0)
     else:

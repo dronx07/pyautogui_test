@@ -40,8 +40,9 @@ jobs:
             python3-xlib \
             libxtst6 \
             libxrandr2 \
-            libxss1\
-            gnome-screenshot
+            libxss1 \
+            gnome-screenshot \
+            chromium-browser
 
       - name: Install Python packages
         run: |
@@ -52,18 +53,34 @@ jobs:
         run: |
           echo "Starting Xvfb..."
           Xvfb :99 -screen 0 1920x1080x24 -ac &
+
           sleep 3
 
           echo "Starting Fluxbox window manager..."
           fluxbox &
-          sleep 2
+
+          sleep 3
 
           echo "Display info:"
           xdpyinfo -display :99
 
+      - name: Verify screenshot works
+        run: |
+          export DISPLAY=:99
+          echo "Testing screenshot capability..."
+          scrot pre_test.png
+          ls -lah *.png
+
+      - name: Set Chromium as default browser
+        run: |
+          export DISPLAY=:99
+          echo "Setting Chromium as default browser..."
+          export BROWSER=chromium-browser
+
       - name: Run PyAutoGUI tests
         run: |
           export DISPLAY=:99
+          export BROWSER=chromium-browser
           echo "Running PyAutoGUI tests..."
           python test.py
 
@@ -74,8 +91,6 @@ jobs:
           name: pyautogui-screenshots
           path: |
             *.png
-            screenshot_*.png
-            test_sequence_*.png
           retention-days: 7
 
       - name: Debug info
@@ -85,4 +100,4 @@ jobs:
           python --version
           echo "DISPLAY=$DISPLAY"
           echo "XAUTHORITY=$XAUTHORITY"
-          ps aux | grep -E "Xvfb|fluxbox" || true
+          ps aux | grep -E "Xvfb|fluxbox|chromium" || true
